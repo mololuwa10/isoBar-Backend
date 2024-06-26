@@ -1,6 +1,6 @@
 # isoBar-Backend
 
-Ambulatory Blood Pressure Diary and Traing Exercises API
+Ambulatory Blood Pressure Diary and Training Exercises API
 The API allows users to create, view, and update their blood pressure diary entries. Key features include:
 
 - User Authentication & Authorization: Ensures that only authenticated users can access and modify their own diaries.
