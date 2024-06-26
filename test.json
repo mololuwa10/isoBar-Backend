@@ -1,0 +1,21 @@
+{
+    "sessionId": 1,
+    "userId": 1,
+    "dateStarted": "June 15, 2024 at 1:56:32 AM UTC+1",
+    "dateCompleted": "",
+    "week1": [
+        {
+            "sessionNumber": 1,
+            "notes": "Initial session"
+        },
+        {
+            "sessionNumber": 2,
+            "notes": "Initial session"
+        },
+        {
+            "sessionNumber": 3,
+            "notes": "Great session"
+        }
+    ]
+    // Going on for week 2, 3, 4.................10  
+}

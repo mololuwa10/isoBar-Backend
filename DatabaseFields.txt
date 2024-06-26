@@ -1,0 +1,40 @@
+Users:
+
+userId (string): Unique identifier for each user.
+firstname (string): First name of the user.
+lastname (string): Last name of the user.
+email (string): Email of the user.
+password (string): Password of the user
+Date of Birth
+Age (string): Age of the user
+Address (string) : address of the user
+Phone number (string) : number of the user
+Gender: To tailor the exercise recommendations.
+Height: For BMI and other health-related calculations.
+Weight: For BMI and tracking weight-related goals.
+
+TrainingSessions:
+
+sessionId (string): Unique identifier for each session.
+userId (string): Reference to the user.
+week (number): Week number.
+sessionNumber (number): Session number within the week.
+dateStarted (timestamp): Date of session start
+dateOfCompletion (timestamp): Date of session completion.
+notes (string): Notes for the session.
+
+BloodPressureDiary:
+
+entryId (string): Unique identifier for each entry.
+userId (string): Reference to the user.
+time (timestamp): Time of the entry.
+activity (string): Activity description.
+event (string): Event description.
+notes (string): Notes for the entry.
+
+Exercises:
+
+exerciseId (string): Unique identifier for each exercise.
+name (string): Name of the exercise.
+description (string): Description of the exercise (optional).
+video (string) : 

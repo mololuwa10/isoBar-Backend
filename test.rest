@@ -1,0 +1,61 @@
+GET http://localhost:8080/
+
+### CREATE A USER
+POST http://localhost:8080/api/register
+Content-Type: application/json
+
+{
+  "firstname": "Mololuwa",
+  "lastname": "Segilola",
+  "email": "mololuwasegi@yahoo.com",
+  "password": "securepassword123",
+  "dateOfBirth": "1990-01-01",
+  "address": "123 Main St, Anytown, USA",
+  "phoneNumber": "07543423456",
+  "gender": "male",
+  "height": 175,
+  "weight": 70
+}
+
+# {
+#   "firstname": "John",
+#   "lastname": "Doe",
+#   "email": "john.doe@example.com",
+#   "password": "securepassword123",
+#   "dateOfBirth": "2003-01-01",
+#   "address": "123 Main St, Anytown, USA",
+#   "phoneNumber": "07543423456",
+#   "gender": "male",
+#   "height": 178,
+#   "weight": 74
+# }
+
+### LOGIN USER
+POST http://localhost:8080/api/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "AdminSecurePassword123"
+}
+
+# {
+#   "email": "mololuwasegi@yahoo.com",
+#   "password": "securepassword123"
+# }
+
+### EXERCISE ENDPOINT TEST ###
+### GET ALL EXERCISES ### 
+GET http://localhost:8080/api/exercises
+
+### CREATE EXERCISE (Admin only)
+POST http://localhost:8080/api/exercises
+Authorization: Bearer {eyJhbGciOiJSUzI1NiIsImtpZCI6ImRmOGIxNTFiY2Q5MGQ1YjMwMjBlNTNhMzYyZTRiMzA3NTYzMzdhNjEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vaXNvbWV0cmljLWV4ZXJjaXNlLWFwcCIsImF1ZCI6Imlzb21ldHJpYy1leGVyY2lzZS1hcHAiLCJhdXRoX3RpbWUiOjE3MTg0MTU0OTYsInVzZXJfaWQiOiJuNklLaVBydzZGZU5IWFVldzgyQUY4Vkh5N3oxIiwic3ViIjoibjZJS2lQcnc2RmVOSFhVZXc4MkFGOFZIeTd6MSIsImlhdCI6MTcxODQxNTQ5NiwiZXhwIjoxNzE4NDE5MDk2LCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImFkbWluQGV4YW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.J71suIQGnRmZV0wfix3G33n0tNia3un-OS1CVp9YI-UenpIwzuNrrdacFFmZHXbjLm9Sn731Z4rH8WBGfDdw1dYBcuEFn3TdTKoHYQug6TBlsY8DPsOTPAZrJ0tm4hVbY75Kk1QasU-LcaqXaeOdCaPx1h42mP5PEPG-v6ntNLFaGBHwLhHDqkq60SQdIwTBPHnLsD9OgN_lEzEm-_hLscPH6cMbvTqsydNmReeIWTcCPX0gnF7-nhlHJhQqKYrj7cwldw2xy6ARy_GnlltEgTQGZTdTwIXDuZcUGCwuFTVD5pVoxrpnXd5fTUmXhQkgR9-XOa7WqEbuwFWX5IH-oA}
+Content-Type: application/json
+
+{
+  "name": "Isometric Chest fly",
+  "description": "An exercise to strengthen the upper body. Sit in a comfortable position with feet shoulder width apart",
+  "video": "",
+  "image": ""
+}
