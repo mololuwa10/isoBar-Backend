@@ -3,7 +3,7 @@
 Ambulatory Blood Pressure Diary and Training Exercises API
 The API allows users to create, view, and update their blood pressure diary entries. Key features include:
 
-- User Authentication & Authorization: Ensures that only authenticated users can access and modify their own diaries.
+- User Authentication & Authorization: Ensures that only authenticated users can access and modify their own diaries and training exercises.
 - Diary Management: CRUD operations for managing blood pressure diary entries, including time slots for specific activities and events.
 - Training Sessions: Support for creating and updating training sessions for a user's health regimen over a 10-week period.
 - RESTful API: Adheres to RESTful principles for easy integration with frontend applications.
