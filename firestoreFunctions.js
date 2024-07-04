@@ -14,7 +14,7 @@ const validateAdmin = async(userId) => {
 
 // Users Collection ====================================================
 const createUser = async (userData) => {
-    const { firstname, lastname, email, password, dateOfBirth, address, phoneNumber, gender, height, weight } = userData;
+    const { firstname, lastname, email, password, dateOfBirth, address, phoneNumber, gender, height, weight, restingBloodPressure } = userData;
 
     if (!firstname || !lastname || !email || !password || !dateOfBirth || !address || !phoneNumber || !gender ) {
         throw new Error('Missing required fields');
@@ -48,6 +48,7 @@ const createUser = async (userData) => {
             gender: gender,
             height: height,
             weight: weight,
+            restingBloodPressure: restingBloodPressure,
             createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
         console.log(`User created with ID: ${userId}`);
@@ -242,6 +243,104 @@ const createOrUpdateTrainingSession = async (userId, weekNumber, sessionNumber, 
     }
 };
 
+// const createOrUpdateTrainingSession = async (userId, notes) => {
+//     try {
+//         // Get the user's start date and all sessions
+//         const startDate = await getStartDate(userId);
+//         const dateStarted = admin.firestore.Timestamp.fromDate(startDate);
+//         const existingSessions = await getUserSessions(userId);
+
+//         // Calculate the current week and session number
+//         let weekNumber, sessionNumber;
+//         if (existingSessions.length === 0) {
+//             weekNumber = 1;
+//             sessionNumber = 1;
+//         } else {
+//             // Determine the last week and session
+//             const lastSession = existingSessions[existingSessions.length - 1];
+//             console.log('Last session:', lastSession);
+
+//             if (lastSession && lastSession.week) {
+//                 const lastWeekNumber = parseInt(lastSession.week.replace('week', ''));
+//                 const lastSessionNumber = lastSession.sessions.length;
+
+//                 if (lastSessionNumber < 3) {
+//                     weekNumber = lastWeekNumber;
+//                     sessionNumber = lastSessionNumber + 1;
+//                 } else {
+//                     weekNumber = lastWeekNumber + 1;
+//                     sessionNumber = 1;
+//                 }
+//             } else {
+//                 throw new Error('Invalid last session data.');
+//             }
+//         }
+
+//         // Calculate the end date for the training program (10 weeks from start date)
+//         const endDate = new Date(dateStarted.seconds * 1000);
+//         endDate.setDate(endDate.getDate() + 7 * 10);
+//         const dateOfCompletion = admin.firestore.Timestamp.fromDate(endDate);
+
+//         // Get reference to the user's training session document
+//         const sessionRef = db.collection('db_trainingSessions').doc(userId);
+
+//         // Run a Firestore transaction to ensure atomic updates
+//         await db.runTransaction(async (transaction) => {
+//             let sessionDoc = await transaction.get(sessionRef);
+//             let sessionData = sessionDoc.exists ? sessionDoc.data() : { sessionId: sessionRef.id ,userId, dateStarted, dateOfCompletion };
+
+//             // Ensure the structure for the current week exists
+//             const weekKey = `week${String(weekNumber).padStart(2, '0')}`;
+//             if (!sessionData.hasOwnProperty(weekKey)) {
+//                 sessionData[weekKey] = [];
+//             }
+
+//             // Add the new session to the current week
+//             sessionData[weekKey].push({ sessionNumber, notes });
+
+//             // Update the session document with the new session data
+//             transaction.set(sessionRef, sessionData);
+//         });
+
+//         console.log(`Training session created/updated successfully for week ${weekNumber}, session ${sessionNumber}`);
+//         return sessionRef.id;
+//     } catch (error) {
+//         console.error('Error creating/updating training session: ', error);
+//         throw error;
+//     }
+// };
+
+const getUserSessions = async (userId) => {
+  const sessionSnapshot = await db.collection('db_trainingSessions')
+    .where('userId', '==', userId)
+    .limit(1) // Assuming you only need to check if any sessions exist
+    .get();
+
+  if (sessionSnapshot.empty) {
+    return [];
+  }
+
+  // Map through the sessionSnapshot to get an array of sessions
+  return sessionSnapshot.docs.map(doc => doc.data());
+};
+
+
+// Function to get user's start date based on their first session creation
+const getStartDate = async (userId) => {
+  // Query Firestore to find the earliest session date for the user
+  const userSessions = await db.collection('db_trainingSessions')
+    .where('userId', '==', userId)
+    .orderBy('dateOfCompletion', 'asc')
+    .limit(1)
+    .get();
+
+  if (!userSessions.empty) {
+    return userSessions.docs[0].data().dateOfCompletion.toDate();
+  } else {
+    // If no sessions exist for the user, default to current date
+    return new Date();
+  }
+};
 /**
  * Calculates the week number based on the start date and session date.
  *

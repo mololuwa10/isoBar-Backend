@@ -9,7 +9,6 @@ const { createUser,
   getExercise, 
   updateExercise, 
   deleteExercise,
-  createTrainingSession,
   createOrUpdateTrainingSession,
   calculateWeekNumber } = require('./firestoreFunctions.js');
 
@@ -79,21 +78,38 @@ const authorizeAdmin = async (req, res, next) => {
   }
 };
 
-
 // Set up multer for file uploads
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Create users =============================================================
 app.post('/api/register', async (req, res) => {
-  const userData = req.body;
+  const { userData, sessionNumber, notes } = req.body;
 
   // Log the received data for debugging
   console.log('Received data:', userData);
 
+  if (!userData) {
+    return res.status(400).send({ error: 'Invalid request data' });
+  }
+
   try {
     const { userId, token, role } = await createUser(userData);
-    res.status(201).send({ userId, token, role });
+
+    const existingSessions = await getUserSessions(userId);
+
+    if (existingSessions.length === 0) {
+      // Calculate the week number dynamically based on user's first session date
+      const startDate = await getStartDate(userId);
+      const weekNumber = calculateWeekNumber(startDate, new Date()) + 1;
+
+      // Create the training session
+      // await createOrUpdateTrainingSession(userId, notes);
+      await createOrUpdateTrainingSession(userId, weekNumber, sessionNumber, notes, getStartDate);
+    }
+
+    res.status(201).send({ userId, token, role, message: 'User account and Training session created successfully' });
   } catch (error) {
+    // console.log(error)
     res.status(500).send({ error: error.message });
   }
 });
@@ -250,29 +266,41 @@ app.delete('/api/exercises/:id', authenticateToken, authorizeAdmin, async (req, 
 // TRAINING SESSION ENDPOINTS =====================================================
 // Create Training Session
 app.post('/api/trainingSessions', authenticateToken, async (req, res) => {
-  const { sessionNumber, notes } = req.body;
+  const { notes } = req.body;
   const userId = req.user.uid;
 
   try {
-    // Check if the user already has existing sessions
-    const existingSessions = await getUserSessions(userId);
-    
-    if (existingSessions.length > 0) {
-      return res.status(403).send({ error: 'Forbidden: You already have existing sessions. Update them instead.' });
-    }
-
-    // Calculate the week number dynamically based on user's first session date
-    const startDate = await getStartDate(userId); 
-    const weekNumber = calculateWeekNumber(startDate, new Date()) + 1; 
-
-    // Create the training session
-    await createOrUpdateTrainingSession(userId, weekNumber, sessionNumber, notes, getStartDate);
-
+    await createOrUpdateTrainingSession(userId, notes);
     res.status(201).send({ message: 'Training session created successfully.' });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
 });
+
+// app.post('/api/trainingSessions', authenticateToken, async (req, res) => {
+//   const { sessionNumber, notes } = req.body;
+//   const userId = req.user.uid;
+
+//   try {
+//     // Check if the user already has existing sessions
+//     const existingSessions = await getUserSessions(userId);
+    
+//     if (existingSessions.length > 0) {
+//       return res.status(403).send({ error: 'Forbidden: You already have existing sessions. Update them instead.' });
+//     }
+
+//     // Calculate the week number dynamically based on user's first session date
+//     const startDate = await getStartDate(userId); 
+//     const weekNumber = calculateWeekNumber(startDate, new Date()) + 1; 
+
+//     // Create the training session
+//     await createOrUpdateTrainingSession(userId, weekNumber, sessionNumber, notes, getStartDate);
+
+//     res.status(201).send({ message: 'Training session created successfully.' });
+//   } catch (error) {
+//     res.status(500).send({ error: error.message });
+//   }
+// });
 
 // Update Training Session
 app.put('/api/trainingSessions/:sessionId/:weekNumber', authenticateToken, async (req, res) => {
