@@ -252,7 +252,7 @@ app.delete('/api/exercises/:id', authenticateToken, authorizeAdmin, async (req, 
 app.post('/api/trainingSessions', authenticateToken, async (req, res) => {
   const { sessionNumber, notes } = req.body;
   const userId = req.user.uid;
-
+  
   try {
     // Check if the user already has existing sessions
     const existingSessions = await getUserSessions(userId);
