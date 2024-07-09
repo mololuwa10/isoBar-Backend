@@ -3,6 +3,8 @@ const cors = require('cors');
 const { db, admin, storage } = require('./firebase.js')
 const { createUser, 
   loginUser, 
+  editUser,
+  deleteUser,
   createDefaultAdmin, 
   createExercise, 
   getAllExercises, 
@@ -113,6 +115,37 @@ app.post('/api/register', async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 });
+
+// Edit users
+app.put('/api/users/:userId', authenticateToken, async (req, res) => {
+  const userId = req.params.userId;
+  const updatedData = req.body;
+  const currentUser = req.user; 
+
+  // Log the received data for debugging
+  console.log('Received data:', updatedData);
+
+  try {
+      await editUser(userId, updatedData, currentUser);
+      res.status(200).send({ message: 'User updated successfully.' });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+})
+
+// Delete Users
+app.delete('/api/users/:userId', authenticateToken, async (req, res) => {
+    const userId = req.params.userId;
+    const currentUser = req.user; // Assuming req.user contains the authenticated user info
+
+    try {
+        await deleteUser(userId, currentUser);
+        res.status(200).send({ message: 'User deleted successfully.' });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+
 // ===========================================================================
 
 // Login user ============================================================
@@ -268,7 +301,7 @@ app.delete('/api/exercises/:id', authenticateToken, authorizeAdmin, async (req, 
 app.post('/api/trainingSessions', authenticateToken, async (req, res) => {
   const { notes } = req.body;
   const userId = req.user.uid;
-
+  
   try {
     await createOrUpdateTrainingSession(userId, notes);
     res.status(201).send({ message: 'Training session created successfully.' });
