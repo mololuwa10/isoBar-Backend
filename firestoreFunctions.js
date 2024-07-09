@@ -14,7 +14,7 @@ const validateAdmin = async(userId) => {
 
 // Users Collection ====================================================
 const createUser = async (userData) => {
-    const { firstname, lastname, email, password, dateOfBirth, address, phoneNumber, gender, height, weight } = userData;
+    const { firstname, lastname, email, password, dateOfBirth, address, phoneNumber, gender, height, weight, restingBloodPressure } = userData;
 
     if (!firstname || !lastname || !email || !password || !dateOfBirth || !address || !phoneNumber || !gender ) {
         throw new Error('Missing required fields');
@@ -33,10 +33,12 @@ const createUser = async (userData) => {
             email: email,
             password: password,
         });
+
         const userId = user.uid;
 
         // Create User with firestore
         await db.collection('db_users').doc(userId).set({
+            userId: userId,
             firstname: firstname,
             lastname: lastname,
             email: email,
@@ -48,6 +50,7 @@ const createUser = async (userData) => {
             gender: gender,
             height: height,
             weight: weight,
+            restingBloodPressure: restingBloodPressure,
             createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
         console.log(`User created with ID: ${userId}`);
@@ -78,6 +81,66 @@ const createUser = async (userData) => {
         throw error;
     }
 }
+
+// Edit User
+const editUser = async(userId, updatedData, currentUser) => {
+    const { firstname, lastname, dateOfBirth, address, phoneNumber, gender, height, weight, restingBloodPressure } = updatedData;
+
+    // Check if the current user is an admin or the user themselves
+    if (currentUser.role !== 'ROLE_ADMIN' && currentUser.uid !== userId) {
+        throw new Error('Unauthorized to edit user details');
+    }
+
+    try {
+        const userRef = db.collection('db_users').doc(userId);
+        const userDoc = await userRef.get();
+
+        if (!userDoc.exists) {
+            throw new Error('User not found');
+        }
+
+        const updateData = {};
+        if (firstname) updateData.firstname = firstname;
+        if (lastname) updateData.lastname = lastname;
+        if (dateOfBirth) {
+            updateData.dateOfBirth = dateOfBirth;
+            updateData.age = calculateAge(dateOfBirth);
+        }
+        if (address) updateData.address = address;
+        if (phoneNumber) updateData.phoneNumber = phoneNumber;
+        if (gender) updateData.gender = gender;
+        if (height) updateData.height = height;
+        if (weight) updateData.weight = weight;
+        if (restingBloodPressure) updateData.restingBloodPressure = restingBloodPressure;
+
+        await userRef.update(updateData);
+        console.log(`User with ID: ${userId} updated successfully`);
+    } catch (error) {
+        console.error('Error editing user:', error);
+        throw error;
+    }
+}
+// Delete User
+const deleteUser = async (userId, currentUser) => {
+    // Check if the current user is an admin or the user themselves
+    if (currentUser.role !== 'ROLE_ADMIN' && currentUser.uid !== userId) {
+        throw new Error('Unauthorized to delete user');
+    }
+
+    try {
+        // Delete the user from Firebase Authentication
+        await admin.auth().deleteUser(userId);
+
+        // Delete the user from Firestore
+        await db.collection('db_users').doc(userId).delete();
+        await db.collection('db_user_roles').doc(userId).delete();
+        console.log(`User with ID: ${userId} deleted successfully`);
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        throw error;
+    }
+};
+
 
 /**
  * Calculates the age based on the provided date of birth.
@@ -326,6 +389,8 @@ const deleteExercise = async (userId, exerciseId) => {
 
 module.exports = {
   createUser,
+  editUser,
+  deleteUser,
   loginUser,
   createDefaultAdmin,
 //   createTrainingSession,
