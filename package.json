@@ -17,6 +17,7 @@
     "express": "^4.19.2",
     "firebase": "^10.12.2",
     "firebase-admin": "^12.1.1",
+    "isometric-exercise-app": "file:",
     "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
